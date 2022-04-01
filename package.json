@@ -1,0 +1,28 @@
+{
+  "name": "@jaredh159/duet",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "start": "watchexec --restart --watch Sources --watch Package.swift --exts swift --signal SIGINT swift build",
+    "start:tests": "watchexec --restart --watch Sources --watch Package.swift --watch Tests --exts swift --signal SIGINT swift test",
+    "codegen:test": "fldev test",
+    "codegen:test:watch": "fldev test:watch"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "@friends-library/dev": "^4.5.2",
+    "@friends-library/env": "^1.4.0",
+    "apollo": "^2.33.4",
+    "x-chalk": "^1.0.1",
+    "x-exec": "^1.2.0"
+  },
+  "dependencies": {
+    "@types/glob": "^7.2.0",
+    "glob": "^7.2.0",
+    "snake-case": "^3.0.4",
+    "strip-indent": "^3.0.0",
+    "x-ts-utils": "^1.2.0"
+  }
+}

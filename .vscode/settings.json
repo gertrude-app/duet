@@ -1,0 +1,9 @@
+{
+  "files.exclude": {
+    "Package.resolved": true,
+    "**/.build": true,
+    "node_modules/": true,
+    "jest.config.js": true,
+    "package-lock.json": true
+  }
+}
