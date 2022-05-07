@@ -12,7 +12,7 @@ let package = Package(
     .library(name: "DuetMock", targets: ["DuetMock"]),
   ],
   dependencies: [
-    .package(name: "XKit", path: "../x-kit"),
+    .package(url: "https://github.com/jaredh159/x-kit.git", from: "1.0.2"),
     .package(url: "https://github.com/vapor/fluent-kit.git", from: "1.16.0"),
     .package(url: "https://github.com/pointfreeco/swift-tagged", from: "0.6.0"),
     .package(url: "https://github.com/wickwirew/Runtime.git", from: "2.2.4"),
@@ -21,7 +21,7 @@ let package = Package(
     .target(
       name: "Duet",
       dependencies: [
-        .product(name: "XCore", package: "XKit"),
+        .product(name: "XCore", package: "x-kit"),
         .product(name: "Tagged", package: "swift-tagged"),
       ]
     ),
@@ -31,7 +31,7 @@ let package = Package(
         "Duet",
         "Runtime",
         .product(name: "FluentSQL", package: "fluent-kit"),
-        .product(name: "XCore", package: "XKit"),
+        .product(name: "XCore", package: "x-kit"),
         .product(name: "Tagged", package: "swift-tagged"),
       ]
     ),
