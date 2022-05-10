@@ -10,6 +10,7 @@ public protocol SQLQuerying {
 
   func count<M: Model>(
     _: M.Type,
-    where: SQL.WhereConstraint<M>
+    where: SQL.WhereConstraint<M>,
+    withSoftDeleted: Bool
   ) async throws -> Int
 }

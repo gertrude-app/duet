@@ -172,6 +172,6 @@ public struct DuetQuery<M: Model> {
   }
 
   public func count() async throws -> Int {
-    try await db.count(M.self, where: constraint)
+    try await db.count(M.self, where: constraint, withSoftDeleted: _withSoftDeleted)
   }
 }

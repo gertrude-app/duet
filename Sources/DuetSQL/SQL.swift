@@ -191,6 +191,9 @@ public enum SQL {
     // e.g. SELECT statements with no WHERE clause have
     // no bindings, and so can't be sent as a pg prepared statement
     if statement.bindings.isEmpty {
+      if LOG_SQL {
+        print("\n```SQL\n\(statement.query)\n```")
+      }
       return try await db.raw("\(raw: statement.query)").all()
     }
 
@@ -213,7 +216,9 @@ public enum SQL {
       _ = try await db.raw("\(raw: insertPrepareSql)").all().get()
     }
 
-    // print("\n```SQL\n\(unPrepare(statement: statement))\n```")
+    if LOG_SQL {
+      print("\n```SQL\n\(unPrepare(statement: statement))\n```")
+    }
 
     return try await db.raw("\(raw: "EXECUTE \(name)(\(params))")").all()
   }
@@ -286,3 +291,5 @@ private func unPrepare(statement: SQL.PreparedStatement) -> String {
   }
   return sql
 }
+
+private let LOG_SQL = ProcessInfo.processInfo.environment["DUET_LOG_SQL"] != nil

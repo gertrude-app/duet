@@ -113,9 +113,13 @@ public struct LiveClient: Client {
 
   public func count<M: Model>(
     _: M.Type,
-    where constraint: SQL.WhereConstraint<M> = .always
+    where constraint: SQL.WhereConstraint<M> = .always,
+    withSoftDeleted: Bool = false
   ) async throws -> Int {
-    let rows = try await SQL.execute(SQL.count(M.self, where: constraint), on: db)
+    let rows = try await SQL.execute(
+      SQL.count(M.self, where: constraint + (withSoftDeleted ? .always : .notSoftDeleted)),
+      on: db
+    )
     guard let row = rows.first else {
       throw DuetSQLError.notFound
     }

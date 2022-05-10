@@ -48,14 +48,15 @@ public struct ThrowingClient: Client {
 
   public func queryJoined<J: SQLJoined>(
     _ Joined: J.Type,
-    withBindings: [Postgres.Data]?
+    withBindings: [Postgres.Data]? = nil
   ) async throws -> [J] {
     throw DuetSQLError.notImplemented("ThrowingClient.queryJoined")
   }
 
   public func count<M: Model>(
     _: M.Type,
-    where constraint: SQL.WhereConstraint<M>
+    where constraint: SQL.WhereConstraint<M> = .never,
+    withSoftDeleted: Bool = false
   ) async throws -> Int {
     throw DuetSQLError.notImplemented("ThrowingClient.count")
   }

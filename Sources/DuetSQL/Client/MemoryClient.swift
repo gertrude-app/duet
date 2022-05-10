@@ -155,8 +155,9 @@ public struct MemoryClient<Store: MemoryStore>: Client {
 
   public func count<M: Model>(
     _: M.Type,
-    where constraint: SQL.WhereConstraint<M>
+    where constraint: SQL.WhereConstraint<M> = .always,
+    withSoftDeleted: Bool = false
   ) async throws -> Int {
-    try await select(M.self, where: constraint).count
+    try await select(M.self, where: constraint, withSoftDeleted: withSoftDeleted).count
   }
 }
