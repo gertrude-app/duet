@@ -28,7 +28,7 @@ export function extractModelAttrs({ source, path }: File): Model | undefined {
   const lines = source.split(`\n`);
   while (lines.length) {
     const line = lines.shift()!;
-    const classMatch = line.match(/^(?:final )?class ([A-Z][^\s]+)(: Codable)? {$/);
+    const classMatch = line.match(/^(?:public )?final class ([A-Z][^\s]+): Codable {$/);
     if (classMatch !== null) {
       return parseClassInterior(classMatch[1], path, lines);
     }
@@ -54,17 +54,19 @@ function parseClassInterior(name: string, path: string, lines: string[]): Model 
       return model;
     }
 
-    if (line.startsWith(`  init`)) {
+    if (line.match(/^  (public )?init/)) {
       parseInit(model, line, lines);
       continue;
     }
 
-    if (!line.startsWith(`  var `)) {
+    if (!line.match(/^  (public )?var /)) {
       continue;
     }
 
     // relations
-    const relationMatch = line.match(/\s+var ([^ ]+) = ([^ <]+)<([^>]+)>.notLoaded/);
+    const relationMatch = line.match(
+      /\s+(?:public )?var ([^ ]+) = ([^ <]+)<([^>]+)>.notLoaded/,
+    );
     if (relationMatch) {
       const [, name = ``, relationType = ``, type = ``] = relationMatch;
       model.relations[name] = { relationType: relationType, type };
@@ -88,7 +90,7 @@ function parseClassInterior(name: string, path: string, lines: string[]): Model 
     const [name, type] = line
       .replace(/\s+\/\/.*/, ``)
       .trim()
-      .replace(/^var /, ``)
+      .replace(/^(public )?var /, ``)
       .split(`: `, 2);
     model.props.push({ name, type });
   }
@@ -97,7 +99,7 @@ function parseClassInterior(name: string, path: string, lines: string[]): Model 
 }
 
 function extractComputedProp(line: string, model: Model): boolean {
-  const computedPropMatch = line.match(/^  var ([^ ]+):\s+([^ ]+)\s+{/);
+  const computedPropMatch = line.match(/^  (?:public )?var ([^ ]+):\s+([^ ]+)\s+{/);
   if (computedPropMatch) {
     const computedProp = { name: computedPropMatch[1], type: computedPropMatch[2] };
     model.computedProps.push(computedProp);
@@ -107,8 +109,9 @@ function extractComputedProp(line: string, model: Model): boolean {
 }
 
 function parseInit(model: Model, line: string, lines: string[]): void {
-  let slicedLine = line.slice(7);
-  if (slicedLine == ``) {
+  const parts = line.split(`init(`);
+  // init is multi-line
+  if (parts[1] == ``) {
     while (lines.length) {
       const line = lines.shift()!;
       if (line.trim().startsWith(`)`)) {
@@ -122,8 +125,8 @@ function parseInit(model: Model, line: string, lines: string[]): void {
       model.init.push({ propName, hasDefault: rest.includes(`=`) });
     }
   } else {
-    slicedLine = slicedLine.replace(/\)\s+{$/, ``);
-    return parseInit(model, `  init(`, [...slicedLine.split(/,\s+/g), `  ) {`]);
+    let innerds = parts[1].replace(/\)\s+{$/, ``);
+    return parseInit(model, `  init(`, [...innerds.split(/,\s+/g), `  ) {`]);
   }
 }
 
