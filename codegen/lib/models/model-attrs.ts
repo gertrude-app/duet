@@ -109,7 +109,7 @@ function extractComputedProp(line: string, model: Model): boolean {
 }
 
 function parseInit(model: Model, line: string, lines: string[]): void {
-  const parts = line.split(`init(`);
+  const parts = line.split(/^  (?:public )?init\(/);
   // init is multi-line
   if (parts[1] == ``) {
     while (lines.length) {
@@ -169,7 +169,7 @@ function extractFromExtensions({ source, path }: File, models: Record<string, Mo
   const lines = source.split(`\n`);
   while (lines.length) {
     const line = lines.shift()!;
-    const extMatch = line.match(/^extension ([A-Z][^\s]+) {$/);
+    const extMatch = line.match(/^(?:public )?extension ([A-Z][^\s]+) {$/);
     if (!extMatch) {
       continue;
     }

@@ -16,22 +16,26 @@ let sqlConformancesCode = /* swift */ `// auto-generated, do not edit
 import DuetSQL
 `;
 
+let graphqlDir = config.graphqlConformancesDir;
+
 for (const model of models) {
   duetConformancesCode += `${model.duetIdentifiableConformance}\n${model.codingKeysExtension}\n`;
   sqlConformancesCode += `\n${duetSqlModelConformance(model, types)}\n`;
-  //   const [conformancePath, conformanceCode] = generateModelConformances(model, types);
-  //   fs.writeFileSync(`${appRoot}/${conformancePath}`, conformanceCode);
+
+  // @TODO model mocks
   //   const [mocksPath, mocksCode] = generateModelMocks(model, types);
   //   const testDir = path.dirname(`${appRoot}/${mocksPath}`);
   //   if (!fs.existsSync(testDir)) {
   //     fs.mkdirSync(testDir);
   //   }
   //   fs.writeFileSync(`${appRoot}/${mocksPath}`, mocksCode);
-  //   const [graphqlPath, graphqlCode] = generateModelGraphQLTypes(model, types);
-  //   fs.writeFileSync(`${appRoot}/${graphqlPath}`, graphqlCode);
+
+  if (graphqlDir) {
+    const graphqlCode = generateModelGraphQLTypes(model, types);
+    fs.writeFileSync(`${graphqlDir}/${model.name}+GraphQL.swift`, graphqlCode);
+  }
 }
 
-// console.log(sqlConformancesCode);
 fs.writeFileSync(config.duetConformancesLocation, duetConformancesCode);
 
 if (config.duetSqlConformancesLocation) {

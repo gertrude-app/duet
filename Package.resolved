@@ -210,7 +210,7 @@
       },
       {
         "package": "swift-tagged",
-        "repositoryURL": "https://github.com/pointfreeco/swift-tagged",
+        "repositoryURL": "https://github.com/pointfreeco/swift-tagged.git",
         "state": {
           "branch": null,
           "revision": "f3f773a5e13f3c8f0ab1ce2ae6378058acefa87d",

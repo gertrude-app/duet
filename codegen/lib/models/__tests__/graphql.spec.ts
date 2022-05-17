@@ -166,6 +166,7 @@ describe(`schemaTypeFieldParts()`, () => {
     [`mustard`, `at`, `\\.mustard`],
     [`createdAt`, `at`, `\\.createdAt`],
     [`updatedAt`, `at`, `\\.updatedAt`],
+    [`deletedAt`, `at`, `\\.deletedAt`],
     [`computedBool`, `at`, `\\.computedBool`],
     [`computedInt`, `at`, `\\.computedInt`],
     [`computedNonEmptyInts`, `at`, `\\.computedNonEmptyInts.rawValue`],
@@ -187,11 +188,12 @@ describe(`generateModelGraphQLTypes()`, () => {
   it(`generates graphql types`, () => {
     const expected = stripIndent(/* swift */ `
       // auto-generated, do not edit
+      import DuetGraphQL
       import Graphiti
       import NonEmpty
       import Vapor
 
-      extension AppSchema {
+      extension DuetGraphQL.Schema {
         static var ThingType: ModelType<Thing> {
           Type(Thing.self) {
             Field("id", at: \\.id.rawValue.lowercased)
@@ -215,6 +217,7 @@ describe(`generateModelGraphQLTypes()`, () => {
             Field("mustard", at: \\.mustard)
             Field("createdAt", at: \\.createdAt)
             Field("updatedAt", at: \\.updatedAt)
+            Field("deletedAt", at: \\.deletedAt)
             Field("computedBool", at: \\.computedBool)
             Field("computedInt", at: \\.computedInt)
             Field("computedNonEmptyInts", at: \\.computedNonEmptyInts.rawValue)
@@ -323,7 +326,9 @@ describe(`generateModelGraphQLTypes()`, () => {
             InputField("deletedAt", at: \\.deletedAt)
           }
         }
+      }
 
+      extension AppSchema {
         static var getThing: AppField<Thing, IdentifyEntityArgs> {
           Field("getThing", at: Resolver.getThing) {
             Argument("id", at: \\.id)
@@ -441,8 +446,7 @@ describe(`generateModelGraphQLTypes()`, () => {
       }
     `).trim();
 
-    const [filepath, generated] = generateModelGraphQLTypes(model, types);
-    expect(filepath).toBe(`Sources/App/Models/Generated/Thing+GraphQL.swift`);
+    const generated = generateModelGraphQLTypes(model, types);
     expect(generated).toBe(expected + `\n`);
   });
 
@@ -459,13 +463,15 @@ describe(`generateModelGraphQLTypes()`, () => {
 
     const expected = stripIndent(/* swift */ `
       // auto-generated, do not edit
+      import DuetGraphQL
       import Graphiti
       import Vapor
 
-      extension AppSchema {
+      extension DuetGraphQL.Schema {
         static var ThingType: ModelType<Thing> {
           Type(Thing.self) {
             Field("id", at: \\.id.rawValue.lowercased)
+            Field("deletedAt", at: \\.deletedAt)
           }
         }
 
@@ -492,7 +498,9 @@ describe(`generateModelGraphQLTypes()`, () => {
             InputField("deletedAt", at: \\.deletedAt)
           }
         }
+      }
 
+      extension AppSchema {
         static var getThing: AppField<Thing, IdentifyEntityArgs> {
           Field("getThing", at: Resolver.getThing) {
             Argument("id", at: \\.id)
@@ -555,7 +563,7 @@ describe(`generateModelGraphQLTypes()`, () => {
       }
     `).trim();
 
-    const [, generated] = generateModelGraphQLTypes(model, types);
+    const generated = generateModelGraphQLTypes(model, types);
     expect(generated).toBe(expected + `\n`);
   });
 
@@ -572,13 +580,15 @@ describe(`generateModelGraphQLTypes()`, () => {
 
     const expected = stripIndent(/* swift */ `
       // auto-generated, do not edit
+      import DuetGraphQL
       import Graphiti
       import Vapor
 
-      extension AppSchema {
+      extension DuetGraphQL.Schema {
         static var ThingType: ModelType<Thing> {
           Type(Thing.self) {
             Field("id", at: \\.id.rawValue.lowercased)
+            Field("deletedAt", at: \\.deletedAt)
           }
         }
 
@@ -605,7 +615,9 @@ describe(`generateModelGraphQLTypes()`, () => {
             InputField("deletedAt", at: \\.deletedAt)
           }
         }
+      }
 
+      extension AppSchema {
         static var getThing: AppField<Thing, IdentifyEntityArgs> {
           Field("getThing", at: Resolver.getThing) {
             Argument("id", at: \\.id)
@@ -671,7 +683,7 @@ describe(`generateModelGraphQLTypes()`, () => {
       }
     `).trim();
 
-    const [, generated] = generateModelGraphQLTypes(model, types);
+    const generated = generateModelGraphQLTypes(model, types);
     expect(generated).toBe(expected + `\n`);
   });
 
@@ -688,10 +700,11 @@ describe(`generateModelGraphQLTypes()`, () => {
 
     const expected = stripIndent(/* swift */ `
       // auto-generated, do not edit
+      import DuetGraphQL
       import Graphiti
       import Vapor
 
-      extension AppSchema {
+      extension DuetGraphQL.Schema {
         static var ThingType: ModelType<Thing> {
           Type(Thing.self) {
             Field("id", at: \\.id.rawValue.lowercased)
@@ -722,7 +735,9 @@ describe(`generateModelGraphQLTypes()`, () => {
             InputField("createdAt", at: \\.createdAt)
           }
         }
+      }
 
+      extension AppSchema {
         static var getThing: AppField<Thing, IdentifyEntityArgs> {
           Field("getThing", at: Resolver.getThing) {
             Argument("id", at: \\.id)
@@ -785,7 +800,7 @@ describe(`generateModelGraphQLTypes()`, () => {
       }
     `).trim();
 
-    const [, generated] = generateModelGraphQLTypes(model, types);
+    const generated = generateModelGraphQLTypes(model, types);
     expect(generated).toBe(expected + `\n`);
   });
 
@@ -800,7 +815,7 @@ describe(`generateModelGraphQLTypes()`, () => {
       { name: `name`, type: `String` },
     ];
 
-    const [, generated] = generateModelGraphQLTypes(model, types);
+    const generated = generateModelGraphQLTypes(model, types);
     expect(generated).not.toContain(` throws `);
   });
 });

@@ -2,10 +2,7 @@ import { pluralize } from '../script-helpers';
 import { GlobalTypes } from '../types';
 import Model from './Model';
 
-export function generateModelGraphQLTypes(
-  model: Model,
-  types: GlobalTypes,
-): [filepath: string, code: string] {
+export function generateModelGraphQLTypes(model: Model, types: GlobalTypes): string {
   let code = GQL_PATTERN;
 
   code = code.replace(
@@ -114,7 +111,7 @@ export function generateModelGraphQLTypes(
     code = code.replace(`import NonEmpty\n`, ``);
   }
 
-  return [`Sources/App/Models/Generated/${model.name}+GraphQL.swift`, code + `\n`];
+  return code + `\n`;
 }
 
 export function isTimestamp(name: string): boolean {
@@ -178,7 +175,7 @@ export function schemaTypeFieldParts(
   types: GlobalTypes,
 ): Array<[string, string, string]> {
   const parts: Array<[string, string, string]> = model.props
-    .filter((p) => p.name !== `deletedAt` && p.name !== `password`)
+    .filter((p) => p.name !== `password`)
     .map(({ name, type }) => [
       type === `Cents<Int>` ? `${name}InCents` : name,
       `at`,
@@ -358,11 +355,12 @@ function keyPath(
 
 const GQL_PATTERN = /* swift */ `
 // auto-generated, do not edit
+import DuetGraphQL
 import Graphiti
 import NonEmpty
 import Vapor
 
-extension AppSchema {
+extension DuetGraphQL.Schema {
   static var ThingType: ModelType<Thing> {
     Type(Thing.self) {
       /* GRAPHQL_SCHEMA_TYPE */
@@ -390,7 +388,9 @@ extension AppSchema {
       /* GRAPHQL_SCHEMA_INPUTS_CREATE_UPDATE */
     }
   }
+}
 
+extension AppSchema {
   static var getThing: AppField<Thing, IdentifyEntityArgs> {
     Field("getThing", at: Resolver.getThing) {
       Argument("id", at: \\.id)

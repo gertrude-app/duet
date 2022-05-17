@@ -4,6 +4,26 @@ import { extractModelAttrs, extractModels } from '../model-attrs';
 import { extractGlobalTypes } from '../global-types';
 
 describe(`extractModelAttrs()`, () => {
+  it(`handles single-line init with .init() default`, () => {
+    const source = stripIndent(/* swift */ `
+    final class Thing: Codable {
+      var lol: UUID
+      var deletedAt: Date?
+
+      init(lol: UUID = .init(), deletedAt: Date? = nil) {
+        self.lol = lol
+        self.deletedAt = deletedAt
+      }
+    } 
+  `);
+
+    const attrs = extractModelAttrs({ source, path: `/Models/Thing.swift` });
+    expect(attrs?.props[0]).toEqual({ name: `lol`, type: `UUID` });
+    expect(attrs?.props[1]).toEqual({ name: `deletedAt`, type: `Date?` });
+    expect(attrs?.init[0]).toEqual({ propName: `lol`, hasDefault: true });
+    expect(attrs?.init[1]).toEqual({ propName: `deletedAt`, hasDefault: true });
+  });
+
   it(`handles optional deletedAt correctly`, () => {
     const source = stripIndent(/* swift */ `
     final class Thing: Codable {
@@ -290,7 +310,7 @@ describe(`extractGlobalTypes()`, () => {
         case rofl
       }
 
-      extension RoflCopter: PostgresJsonable {}
+      public extension RoflCopter: PostgresJsonable {}
 
       extension Bulldozer: PostgresJsonable {
         // innerds here
@@ -329,8 +349,10 @@ describe(`extractGlobalTypes()`, () => {
           case block
           case allow
         }
+      }
 
-        public enum Reason: String, Codable, Equatable, CaseIterable, CustomStringConvertible {
+      public extension NetworkDecision {
+        enum Reason: String, Codable, Equatable, CaseIterable, CustomStringConvertible {
           case systemUser
           case userIsExempt
         }
