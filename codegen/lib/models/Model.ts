@@ -47,7 +47,27 @@ export default class Model {
     return code;
   }
 
+  public get apiModelConformance(): string {
+    return `extension ${this.name}: ApiModel {}`;
+  }
+
+  public get tableName(): string {
+    return this.migrationNumber
+      ? `M${this.migrationNumber}.tableName`
+      : `"${pascalToSnake(this.name)}s"`;
+  }
+
   public static mock(): Model {
     return new Model(`Thing`, `Sources/App/Models/Things/Thing.swift`);
   }
+}
+
+// helpers
+
+function pascalToSnake(str: string): string {
+  return str
+    .trim()
+    .split(/(?=[A-Z])/)
+    .join('_')
+    .toLowerCase();
 }

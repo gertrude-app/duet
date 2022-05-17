@@ -206,7 +206,7 @@ export function extractTaggedType(
   obj: { taggedTypes: Record<string, string> },
   line: string,
 ): void {
-  const match = line.match(/^\s*typealias ([^ ]+) = Tagged<(.+)>$/);
+  const match = line.match(/^\s*(?:public )?typealias ([^ ]+) = Tagged<(.+)>$/);
   if (!match) {
     return;
   }

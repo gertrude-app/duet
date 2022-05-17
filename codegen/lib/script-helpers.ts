@@ -21,7 +21,7 @@ type ScriptData = {
     // additionalGlobalTypeSearchPaths: string[];
     // typealiases: Record<string, string>;
     // modelDirs: Record<string, string>;
-    // sideLoaded: Record<string, string>;
+    sideLoaded: Record<string, string>;
   };
 };
 
@@ -66,7 +66,7 @@ export function scriptData(): ScriptData & { model?: Model } {
   // const globalTypeSearchPaths =
 
   const types = extractGlobalTypes(globalTypeSearchPaths, {}); // @TODO config.typealiases);
-  // types.sideLoaded = config.sideLoaded;
+  types.sideLoaded = config.sideLoaded;
 
   const models = extractModels(files);
 
@@ -98,6 +98,7 @@ function parseConfig(appRoot: string): ScriptData['config'] {
   const config: ScriptData['config'] = {
     modelsSearchPaths: [],
     duetConformancesLocation: ``,
+    sideLoaded: {},
   };
 
   const pkgJsonPath = path.resolve(appRoot, `package.json`);
@@ -153,15 +154,15 @@ function parseConfig(appRoot: string): ScriptData['config'] {
   //   }
   // }
 
-  // const sideLoaded = duetConfig?.sideLoaded;
-  // const sideLoadedObj =
-  //   typeof sideLoaded === `object` && sideLoaded !== null ? sideLoaded : {};
+  const sideLoaded = duetConfig?.sideLoaded;
+  const sideLoadedObj =
+    typeof sideLoaded === `object` && sideLoaded !== null ? sideLoaded : {};
 
-  // for (const [key, value] of Object.entries(sideLoadedObj)) {
-  //   if (typeof value === `string`) {
-  //     config.sideLoaded[key] = value;
-  //   }
-  // }
+  for (const [key, value] of Object.entries(sideLoadedObj)) {
+    if (typeof value === `string`) {
+      config.sideLoaded[key] = value;
+    }
+  }
 
   return config;
 }

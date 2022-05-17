@@ -2,10 +2,19 @@ import stripIndent from 'strip-indent';
 import { GlobalTypes } from '../types';
 import Model, { Prop } from './Model';
 
-export function insertData(model: Model, types: GlobalTypes): string {
+export function duetSqlModelConformance(model: Model, types: GlobalTypes): string {
   let code = stripIndent(/* swift */ `
-    extension __MODEL_NAME__ {
-      var insertValues: [ColumnName: Postgres.Data] {
+    extension ${model.name}: Model, ApiModel {
+      public static let tableName = ${model.tableName}
+      public typealias ColumnName = CodingKeys
+
+      public func postgresData(for column: ColumnName) -> Postgres.Data {
+        switch column {
+        // PG_DATA_CASES_HERE
+        }
+      }
+
+      public var insertValues: [ColumnName: Postgres.Data] {
         [
           // VALUES_HERE
         ]
@@ -13,17 +22,24 @@ export function insertData(model: Model, types: GlobalTypes): string {
     } 
   `).trim();
 
+  let pgCases = model.props
+    .flatMap((prop) => {
+      const data = toPostgresData(prop, model, types, `forInspect`);
+      return [
+        `case .${prop.name}:`,
+        !data.includes(`return `) ? `  return ${data}` : `  ${data}`,
+      ];
+    })
+    .join(`\n    `);
+
   const values = model.props
     .filter((p) => p.name != `deletedAt` || p.type === `Date`)
     .map((prop) => [prop.name, toPostgresData(prop, model, types, `forInsert`)])
-    .filter(([, pgString]) => !pgString.includes(`Current.logger.error`));
+    .filter(([, pgString]) => !pgString.includes(`Current.logger.error`))
+    .map(([ident, value]) => `.${ident}: ${value},`)
+    .join(`\n      `);
 
-  return code
-    .replace(`__MODEL_NAME__`, model.name)
-    .replace(
-      `// VALUES_HERE`,
-      values.map(([ident, value]) => `.${ident}: ${value},`).join(`\n      `),
-    );
+  return code.replace(`// VALUES_HERE`, values).replace(`// PG_DATA_CASES_HERE`, pgCases);
 }
 
 export function toPostgresData(
@@ -98,7 +114,6 @@ export function toPostgresData(
             throw new Error(`Tagged subtype ${taggedType} not implemented`);
         }
       }
-
       return `.enum(${ident})`;
   }
 }

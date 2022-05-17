@@ -10,7 +10,7 @@ describe(`Model`, () => {
       }
     `);
 
-    expect(new Model(`Thing`, ``).duetIdentifiableConformance).toBe(expected);
+    expect(Model.mock().duetIdentifiableConformance).toBe(expected);
   });
 
   it(`generates correct CodingKeys`, () => {
@@ -23,11 +23,21 @@ describe(`Model`, () => {
       }
     `);
 
-    const model = new Model(`Thing`, ``);
+    const model = Model.mock();
     model.props = [
       { name: `id`, type: `Id` },
       { name: `foo`, type: `String` },
     ];
     expect(model.codingKeysExtension).toBe(expected.trim());
+  });
+
+  it(`tableName (w/ migration number)`, () => {
+    const model = Model.mock();
+    model.migrationNumber = 1;
+    expect(model.tableName).toBe(`M1.tableName`);
+  });
+
+  it(`tableName (NO migration number)`, () => {
+    expect(Model.mock().tableName).toBe(`"things"`);
   });
 });
