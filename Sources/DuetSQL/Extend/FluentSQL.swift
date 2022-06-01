@@ -7,13 +7,17 @@ public extension SQLRow {
   }
 }
 
-extension SQLQueryString {
+public extension SQLQueryString {
   mutating func appendInterpolation<T: RawRepresentable>(id: T) where T.RawValue == UUID {
     appendInterpolation(raw: id.rawValue.uuidString)
   }
 
   mutating func appendInterpolation<M: DuetSQL.Model>(table model: M.Type) {
     appendInterpolation(raw: model.tableName)
+  }
+
+  mutating func appendInterpolation(col: FieldKey) {
+    appendInterpolation(raw: col.description)
   }
 
   mutating func appendInterpolation(col: String) {
