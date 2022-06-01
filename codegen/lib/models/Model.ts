@@ -1,3 +1,5 @@
+import stripIndent from 'strip-indent';
+
 export type Prop = {
   name: string;
   type: string;
@@ -29,7 +31,43 @@ export default class Model {
     return this.name.charAt(0).toLowerCase() + this.name.slice(1);
   }
 
+  public get duetIdentifiableConformance(): string {
+    return stripIndent(/* swift */ `
+      extension ${this.name}: Duet.Identifiable {
+        public typealias Id = Tagged<${this.name}, UUID>
+      }
+    `);
+  }
+
+  public get codingKeysExtension(): string {
+    let code = `public extension ${this.name} {\n`;
+    code += `  enum CodingKeys: String, CodingKey, CaseIterable {\n    `;
+    code += this.props.map((p) => `case ${p.name}`).join(`\n    `);
+    code += `\n  }\n}`;
+    return code;
+  }
+
+  public get apiModelConformance(): string {
+    return `extension ${this.name}: ApiModel {}`;
+  }
+
+  public get tableName(): string {
+    return this.migrationNumber
+      ? `M${this.migrationNumber}.tableName`
+      : `"${pascalToSnake(this.name)}s"`;
+  }
+
   public static mock(): Model {
     return new Model(`Thing`, `Sources/App/Models/Things/Thing.swift`);
   }
+}
+
+// helpers
+
+function pascalToSnake(str: string): string {
+  return str
+    .trim()
+    .split(/(?=[A-Z])/)
+    .join('_')
+    .toLowerCase();
 }

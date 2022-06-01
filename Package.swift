@@ -10,12 +10,15 @@ let package = Package(
     .library(name: "Duet", targets: ["Duet"]),
     .library(name: "DuetSQL", targets: ["DuetSQL"]),
     .library(name: "DuetMock", targets: ["DuetMock"]),
+    .library(name: "DuetGraphQL", targets: ["DuetGraphQL"]),
   ],
   dependencies: [
-    .package(url: "https://github.com/jaredh159/x-kit.git", from: "1.0.2"),
-    .package(url: "https://github.com/vapor/fluent-kit.git", from: "1.16.0"),
-    .package(url: "https://github.com/pointfreeco/swift-tagged", from: "0.6.0"),
-    .package(url: "https://github.com/wickwirew/Runtime.git", from: "2.2.4"),
+    .package("jaredh159/x-kit@1.1.0"),
+    .package("vapor/fluent-kit@1.16.0"),
+    .package("pointfreeco/swift-tagged@0.6.0"),
+    .package("wickwirew/Runtime@2.2.4"),
+    .package("vapor/vapor@4.49.2"),
+    .package("alexsteinerde/graphql-kit@2.3.0", "GraphQLKit"),
   ],
   targets: [
     .target(
@@ -35,8 +38,27 @@ let package = Package(
         .product(name: "Tagged", package: "swift-tagged"),
       ]
     ),
+    .target(
+      name: "DuetGraphQL",
+      dependencies: [
+        .product(name: "Vapor", package: "vapor"),
+        "DuetSQL",
+        "GraphQLKit",
+      ]
+    ),
     .target(name: "DuetMock", dependencies: ["Duet"]),
     .testTarget(name: "DuetSQLTests", dependencies: ["DuetSQL"]),
     .testTarget(name: "DuetTests", dependencies: ["Duet"]),
   ]
 )
+
+extension PackageDescription.Package.Dependency {
+  static func package(_ commitish: String, _ name: String? = nil) -> Package.Dependency {
+    let parts = commitish.split(separator: "@")
+    return .package(
+      name: name,
+      url: "https://github.com/\(parts[0]).git",
+      from: .init(stringLiteral: "\(parts[1])")
+    )
+  }
+}

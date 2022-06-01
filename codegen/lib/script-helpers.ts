@@ -14,9 +14,10 @@ type ScriptData = {
   types: GlobalTypes;
   models: Model[];
   config: {
-    additionalGlobalTypeSearchPaths: string[];
-    typealiases: Record<string, string>;
-    modelDirs: Record<string, string>;
+    modelsSearchPaths: string[];
+    duetConformancesLocation: string;
+    duetSqlConformancesLocation?: string;
+    graphqlConformancesDir?: string;
     sideLoaded: Record<string, string>;
   };
 };
@@ -41,19 +42,19 @@ export function scriptData(): ScriptData & { model?: Model } {
   const appDir = path.resolve(appRoot, `Sources`, `App`);
   const config = parseConfig(appRoot);
 
-  const files = glob(`${appDir}/**/*.swift`).map((abspath) => ({
-    path: abspath.replace(`${appRoot}/`, ``),
-    source: fs.readFileSync(abspath, `utf-8`),
-  }));
+  let files: Array<{ path: string; source: string }> = [];
+  for (const searchPath of config.modelsSearchPaths) {
+    files = files.concat(
+      glob(searchPath).map((abspath) => ({
+        path: abspath.replace(`${appRoot}/`, ``),
+        source: fs.readFileSync(abspath, `utf-8`),
+      })),
+    );
+  }
 
-  let globalTypeSearchPaths = [
-    ...files.map((f) => f.source),
-    ...config.additionalGlobalTypeSearchPaths.map((path) =>
-      fs.readFileSync(path, `utf8`),
-    ),
-  ];
+  let globalTypeSearchPaths = [...files.map((f) => f.source)];
 
-  const types = extractGlobalTypes(globalTypeSearchPaths, config.typealiases);
+  const types = extractGlobalTypes(globalTypeSearchPaths, {});
   types.sideLoaded = config.sideLoaded;
 
   const models = extractModels(files);
@@ -84,9 +85,8 @@ export function printCode(identifier: string, path: string, code: string): void 
 
 function parseConfig(appRoot: string): ScriptData['config'] {
   const config: ScriptData['config'] = {
-    additionalGlobalTypeSearchPaths: [],
-    typealiases: {},
-    modelDirs: {},
+    modelsSearchPaths: [],
+    duetConformancesLocation: ``,
     sideLoaded: {},
   };
 
@@ -99,33 +99,28 @@ function parseConfig(appRoot: string): ScriptData['config'] {
     fs.readFileSync(pkgJsonPath, `utf8`),
   ).duet;
 
-  const searchPaths = duetConfig?.additionalGlobalTypeSearchPaths;
+  const duetConformancesLocation = duetConfig?.duetConformancesLocation;
+  if (typeof duetConformancesLocation !== `string`) {
+    console.error(`Missing required config.duetConformancesLocation`);
+    process.exit(1);
+  }
+  config.duetConformancesLocation = duetConformancesLocation;
+
+  const searchPaths = duetConfig?.modelsSearchPaths;
   if (Array.isArray(searchPaths)) {
     for (const searchPath of searchPaths) {
       if (typeof searchPath === `string`) {
-        config.additionalGlobalTypeSearchPaths.push(searchPath);
+        config.modelsSearchPaths.push(searchPath);
       }
     }
   }
 
-  const typealiases = duetConfig?.typealiases;
-  const typealiasesObj =
-    typeof typealiases === `object` && typealiases !== null ? typealiases : {};
-
-  for (const [key, value] of Object.entries(typealiasesObj)) {
-    if (typeof value === `string`) {
-      config.typealiases[key] = value;
-    }
+  if (typeof duetConfig?.duetSqlConformancesLocation === `string`) {
+    config.duetSqlConformancesLocation = duetConfig.duetSqlConformancesLocation;
   }
 
-  const modelDirs = duetConfig?.modelDirs;
-  const modelDirsObj =
-    typeof modelDirs === `object` && modelDirs !== null ? modelDirs : {};
-
-  for (const [key, value] of Object.entries(modelDirsObj)) {
-    if (typeof value === `string`) {
-      config.modelDirs[key] = value;
-    }
+  if (typeof duetConfig?.graphqlConformancesDir === `string`) {
+    config.graphqlConformancesDir = duetConfig.graphqlConformancesDir;
   }
 
   const sideLoaded = duetConfig?.sideLoaded;
