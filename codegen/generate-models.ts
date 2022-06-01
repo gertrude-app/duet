@@ -22,13 +22,14 @@ for (const model of models) {
   duetConformancesCode += `${model.duetIdentifiableConformance}\n${model.codingKeysExtension}\n`;
   sqlConformancesCode += `\n${duetSqlModelConformance(model, types)}\n`;
 
-  // @TODO model mocks
-  const [mocksPath, mocksCode] = generateModelMocks(model, types);
-  const testDir = path.dirname(`${appRoot}/${mocksPath}`);
-  if (!fs.existsSync(testDir)) {
-    fs.mkdirSync(testDir);
+  if (config.modelsMockDir) {
+    const [filename, mocksCode] = generateModelMocks(model, types);
+    const testDir = path.dirname(`${config.modelsMockDir}/${filename}`);
+    if (!fs.existsSync(testDir)) {
+      fs.mkdirSync(testDir);
+    }
+    fs.writeFileSync(`${config.modelsMockDir}/${filename}`, mocksCode);
   }
-  fs.writeFileSync(`${appRoot}/${mocksPath}`, mocksCode);
 
   if (graphqlDir) {
     const graphqlCode = generateModelGraphQLTypes(model, types);

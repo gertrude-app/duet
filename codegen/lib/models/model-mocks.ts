@@ -57,7 +57,7 @@ export function generateModelMocks(
   code = code.replace(/ Document /g, ` App.Document `);
   code = code.replace(/ Token /g, ` App.Token `);
 
-  return [`Tests/AppTests/Mocks/${model.name}+Mocks.swift`, code];
+  return [`${model.name}+Mocks.swift`, code];
 }
 
 function generateMapFn(model: Model, types: GlobalTypes): string {

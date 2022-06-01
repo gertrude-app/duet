@@ -94,8 +94,8 @@ describe(`generateModelMocks()`, () => {
       }
     `).trim();
 
-    const [filepath, sourceCode] = generateModelMocks(model, globalTypes);
-    expect(filepath).toBe(`Tests/AppTests/Mocks/Thing+Mocks.swift`);
+    const [filename, sourceCode] = generateModelMocks(model, globalTypes);
+    expect(filename).toBe(`Thing+Mocks.swift`);
     expect(sourceCode).toBe(expectedMocks + `\n`);
   });
 
@@ -190,8 +190,8 @@ describe(`generateModelMocks()`, () => {
       }
     `).trim();
 
-    const [filepath, sourceCode] = generateModelMocks(model, globalTypes);
-    expect(filepath).toBe(`Tests/AppTests/Mocks/Thing+Mocks.swift`);
+    const [filename, sourceCode] = generateModelMocks(model, globalTypes);
+    expect(filename).toBe(`Thing+Mocks.swift`);
     expect(sourceCode).toBe(expectedMocks + `\n`);
   });
 });

@@ -15,6 +15,7 @@ type ScriptData = {
   models: Model[];
   config: {
     modelsSearchPaths: string[];
+    modelsMockDir?: string;
     duetConformancesLocation: string;
     duetSqlConformancesLocation?: string;
     graphqlConformancesDir?: string;
@@ -117,6 +118,10 @@ function parseConfig(appRoot: string): ScriptData['config'] {
 
   if (typeof duetConfig?.duetSqlConformancesLocation === `string`) {
     config.duetSqlConformancesLocation = duetConfig.duetSqlConformancesLocation;
+  }
+
+  if (typeof duetConfig?.modelsMockDir === `string`) {
+    config.modelsMockDir = duetConfig.modelsMockDir;
   }
 
   if (typeof duetConfig?.graphqlConformancesDir === `string`) {
