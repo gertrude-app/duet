@@ -4,9 +4,29 @@ import { extractModelAttrs, extractModels } from '../model-attrs';
 import { extractGlobalTypes } from '../global-types';
 
 describe(`extractModelAttrs()`, () => {
+  it(`handles single-line init with .init() default`, () => {
+    const source = stripIndent(/* swift */ `
+    final class Thing: Codable {
+      var lol: UUID
+      var deletedAt: Date?
+
+      init(lol: UUID = .init(), deletedAt: Date? = nil) {
+        self.lol = lol
+        self.deletedAt = deletedAt
+      }
+    } 
+  `);
+
+    const attrs = extractModelAttrs({ source, path: `/Models/Thing.swift` });
+    expect(attrs?.props[0]).toEqual({ name: `lol`, type: `UUID` });
+    expect(attrs?.props[1]).toEqual({ name: `deletedAt`, type: `Date?` });
+    expect(attrs?.init[0]).toEqual({ propName: `lol`, hasDefault: true });
+    expect(attrs?.init[1]).toEqual({ propName: `deletedAt`, hasDefault: true });
+  });
+
   it(`handles optional deletedAt correctly`, () => {
     const source = stripIndent(/* swift */ `
-    final class Thing {
+    final class Thing: Codable {
       var deletedAt: Date?
 
       init(deletedAt: Date? = nil) {
@@ -22,10 +42,10 @@ describe(`extractModelAttrs()`, () => {
 
   it(`handles non-optional deletedAt with init default correctly`, () => {
     const source = stripIndent(/* swift */ `
-    final class Thing {
+    final class Thing: Codable {
       var deletedAt: Date
 
-      init(deletedAt: Date? = nil) {
+      public init(deletedAt: Date? = nil) {
         self.deletedAt = deletedAt ?? Date()
       }
     } 
@@ -38,15 +58,15 @@ describe(`extractModelAttrs()`, () => {
 
   it(`extracts basic props`, () => {
     const source = stripIndent(/* swift */ `
-    final class Thing {
+    final class Thing: Codable {
       var id: Id
-      var name: String
+      public var name: String
       var foo: String // @TODO comment shouldn't interfere with extraction
       var parentId: Parent.Id
       var lols: NonEmpty<[Int]>
-      var hasBeard: Bool { true }
+      public var hasBeard: Bool { true }
       var kids = Children<Person>.notLoaded
-      var createdAt = Current.date()
+      var createdAt = Date()
       var updatedAt: Date
       var deletedAt = Date()
 
@@ -56,7 +76,7 @@ describe(`extractModelAttrs()`, () => {
       }
       var computed3: Cents<Int> { someFunction() }
 
-      init(
+      public init(
         id: Id = .init(),
         name: String,
         foo: String,
@@ -110,7 +130,7 @@ describe(`extractModelAttrs()`, () => {
 
   it(`can extract underlying types from tagged typealiases`, () => {
     const source = stripIndent(/* swift */ `
-      final class Thing {
+      final class Thing: Codable {
         var t1: Alias1
         var t2: Alias2?
         var t3: Alias3
@@ -135,7 +155,7 @@ describe(`extractModelAttrs()`, () => {
 
   it(`can extract nested db enums`, () => {
     const source = stripIndent(/* swift */ `
-      final class Thing {
+      final class Thing: Codable {
         var foo: FooBar
         var bar: JimJam
       } 
@@ -164,7 +184,7 @@ describe(`extractModelAttrs()`, () => {
 
   it(`can extract nested jsonables`, () => {
     const source = stripIndent(/* swift */ `
-      final class Thing {
+      final class Thing: Codable {
         var foo: FooBar
         var bar: JimJam
       } 
@@ -189,7 +209,7 @@ describe(`extractModelAttrs()`, () => {
 describe(`extractModels()`, () => {
   it(`extracts migration number (single migration)`, () => {
     const source1 = stripIndent(/* swift */ `
-      final class Foobar {
+      final class Foobar: Codable {
         var id: UUID
         var age: Int
 
@@ -237,7 +257,7 @@ describe(`extractModels()`, () => {
 
   it(`extracts migration number (double migration)`, () => {
     const source1 = stripIndent(/* swift */ `
-    final class Foobar {
+    final class Foobar: Codable {
       var id: UUID
     } 
   `);
@@ -290,7 +310,7 @@ describe(`extractGlobalTypes()`, () => {
         case rofl
       }
 
-      extension RoflCopter: PostgresJsonable {}
+      public extension RoflCopter: PostgresJsonable {}
 
       extension Bulldozer: PostgresJsonable {
         // innerds here
@@ -329,8 +349,10 @@ describe(`extractGlobalTypes()`, () => {
           case block
           case allow
         }
+      }
 
-        public enum Reason: String, Codable, Equatable, CaseIterable, CustomStringConvertible {
+      public extension NetworkDecision {
+        enum Reason: String, Codable, Equatable, CaseIterable, CustomStringConvertible {
           case systemUser
           case userIsExempt
         }

@@ -71,11 +71,11 @@ function isJsonable(conformances: string): boolean {
 
 function updateStack(types: string[], line: string) {
   const typeStartMatch = line.match(
-    /^\s*(?:public )?(?:enum|struct|class|actor) (\w+)(?:: ([A-Za-z\., ]+)) {$/,
+    /^\s*(?:public )?(?:enum|struct|class|actor|extension) (\w+)(?:: ([A-Za-z\., ]+))? {$/,
   );
 
   if (typeStartMatch) {
-    const [_, typename, conformances] = typeStartMatch;
+    const [_, typename, conformances = ``] = typeStartMatch;
     if (!isDbEnum(conformances) && !isJsonable(conformances)) {
       types.push(typename);
     }
