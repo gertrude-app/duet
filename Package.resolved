@@ -210,7 +210,7 @@
       },
       {
         "package": "swift-tagged",
-        "repositoryURL": "https://github.com/pointfreeco/swift-tagged",
+        "repositoryURL": "https://github.com/pointfreeco/swift-tagged.git",
         "state": {
           "branch": null,
           "revision": "f3f773a5e13f3c8f0ab1ce2ae6378058acefa87d",
@@ -249,8 +249,8 @@
         "repositoryURL": "https://github.com/jaredh159/x-kit.git",
         "state": {
           "branch": null,
-          "revision": "7deedcba5da944d4e274dc16105c6624f98493b4",
-          "version": "1.0.2"
+          "revision": "54871ee5c2d6b2fac29e32ac62df6fbc79256184",
+          "version": "1.1.0"
         }
       }
     ]
