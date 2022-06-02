@@ -5,7 +5,7 @@ import PackageDescription
 
 let package = Package(
   name: "Duet",
-  platforms: [.macOS(.v12)],
+  platforms: [.macOS(.v11)],
   products: [
     .library(name: "Duet", targets: ["Duet"]),
     .library(name: "DuetSQL", targets: ["DuetSQL"]),
@@ -13,7 +13,7 @@ let package = Package(
     .library(name: "DuetGraphQL", targets: ["DuetGraphQL"]),
   ],
   dependencies: [
-    .package("jaredh159/x-kit@1.1.0"),
+    .package("jaredh159/x-kit@1.1.1"),
     .package("vapor/fluent-kit@1.16.0"),
     .package("pointfreeco/swift-tagged@0.6.0"),
     .package("wickwirew/Runtime@2.2.4"),
