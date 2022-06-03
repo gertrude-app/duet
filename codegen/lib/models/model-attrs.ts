@@ -37,7 +37,9 @@ export function extractModelAttrs({ source, path }: File): Model | undefined {
 
 function isFileWithoutModelInfo(path: string): boolean {
   return (
-    (!path.includes(`/Models/`) && !path.includes(`/Migrations/`)) ||
+    (!path.includes(`/Models/`) &&
+      !path.includes(`/Migrations/`) &&
+      !path.includes(`/Entities/`)) ||
     path.includes(`Generated`) ||
     path.includes(`Repository`) ||
     path.includes(`Resolver`)

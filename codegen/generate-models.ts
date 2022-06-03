@@ -5,7 +5,7 @@ import { generateModelMocks } from './lib/models/model-mocks';
 import { generateModelGraphQLTypes } from './lib/models/graphql';
 import { scriptData } from './lib/script-helpers';
 
-const { models, appRoot, types, config } = scriptData();
+const { models, types, config } = scriptData();
 
 let duetConformancesCode = /* swift */ `// auto-generated, do not edit
 import Duet
