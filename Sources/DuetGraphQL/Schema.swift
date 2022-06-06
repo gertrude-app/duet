@@ -13,6 +13,12 @@ public enum Schema<Resolver> {
       Field("id", at: \.id.lowercased)
     }
   }
+
+  public static var GenericResponseType: AppType<GenericResponse> {
+    Type(GenericResponse.self) {
+      Field("success", at: \.success)
+    }
+  }
 }
 
 public struct InputArgs<Input: Codable>: Codable {
