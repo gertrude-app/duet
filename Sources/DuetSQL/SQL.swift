@@ -213,6 +213,10 @@ public enum SQL {
         \(statement.query)
         """
 
+        if LOG_SQL {
+          print("\n```SQL\n\(insertPrepareSql)\n```")
+        }
+
         await prepared.set(name, forKey: key)
         _ = try await db.raw("\(raw: insertPrepareSql)").all().get()
       }
