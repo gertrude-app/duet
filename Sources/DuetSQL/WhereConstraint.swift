@@ -201,6 +201,13 @@ public func == <M: Model>(
   .equals(lhs, .enum(rhs))
 }
 
+public func == <M: Model>(
+  lhs: M.ColumnName,
+  rhs: String
+) -> SQL.WhereConstraint<M> {
+  .equals(lhs, .string(rhs))
+}
+
 public func != <M: Model>(
   lhs: M.ColumnName,
   rhs: Postgres.Data
@@ -220,6 +227,13 @@ public func != <M: Model>(
   rhs: PostgresEnum
 ) -> SQL.WhereConstraint<M> {
   .not(.equals(lhs, .enum(rhs)))
+}
+
+public func != <M: Model>(
+  lhs: M.ColumnName,
+  rhs: String
+) -> SQL.WhereConstraint<M> {
+  .not(.equals(lhs, .string(rhs)))
 }
 
 infix operator |=|
