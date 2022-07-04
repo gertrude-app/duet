@@ -204,8 +204,8 @@ function mockValue(
     case `EmailAddress`:
       return {
         mock: `"mock@mock.com"`,
-        empty: `""`,
-        random: `.init(rawValue: "@random".random)`,
+        empty: `"empty@empty.com"`,
+        random: `.init(rawValue: "random@random\\(Int.random).com")`,
       };
     case `GitCommitSha`:
       return {
