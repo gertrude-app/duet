@@ -240,6 +240,13 @@ infix operator |=|
 
 public func |=| <M: Model>(
   lhs: M.ColumnName,
+  rhs: [UUIDStringable]
+) -> SQL.WhereConstraint<M> {
+  .in(lhs, rhs.map { .uuid($0) })
+}
+
+public func |=| <M: Model>(
+  lhs: M.ColumnName,
   rhs: [M.IdValue]
 ) -> SQL.WhereConstraint<M> {
   .in(lhs, rhs.map { .uuid($0) })
