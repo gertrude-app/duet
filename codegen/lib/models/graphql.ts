@@ -344,6 +344,7 @@ function keyPath(
   if (
     type === `Id` ||
     type === `UUID` ||
+    type === `[UUID]` ||
     model.taggedTypes[type] === `UUID` ||
     globalTypes.taggedTypes[type] === `UUID` ||
     type.endsWith(`.Id`)

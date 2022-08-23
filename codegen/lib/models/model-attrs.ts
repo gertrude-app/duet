@@ -153,7 +153,7 @@ function setMigrationNumber(model: Model, lines: string[]): void {
     if (line.startsWith(`}`)) {
       return;
     }
-    const migrationMatch = line.match(/^  enum M(\d+) {$/);
+    const migrationMatch = line.match(/^  enum M(\d+)(: TableNamingMigration)? {$/);
     if (migrationMatch && !Number.isNaN(Number(migrationMatch[1]))) {
       inMigration = Number(migrationMatch[1]);
     }
