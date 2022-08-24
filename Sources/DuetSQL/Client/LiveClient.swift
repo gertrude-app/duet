@@ -1,17 +1,17 @@
 import FluentSQL
 
 public struct LiveClient: Client {
-  let db: SQLDatabase
+  public let sql: SQLDatabase
 
-  public init(db: SQLDatabase) {
-    self.db = db
+  public init(sql: SQLDatabase) {
+    self.sql = sql
   }
 
   @discardableResult
   public func create<M: Model>(_ models: [M]) async throws -> [M] {
     guard !models.isEmpty else { return models }
     let prepared = try SQL.insert(into: M.self, values: models.map(\.insertValues))
-    try await SQL.execute(prepared, on: db)
+    try await SQL.execute(prepared, on: sql)
     return models
   }
 
@@ -29,7 +29,7 @@ public struct LiveClient: Client {
       where: M.column("id") == .id(model),
       returning: .all
     )
-    let models = try await SQL.execute(prepared, on: db)
+    let models = try await SQL.execute(prepared, on: sql)
       .compactMap { try $0.decode(M.self) }
       .firstOrThrowNotFound()
     return models
@@ -52,7 +52,7 @@ public struct LiveClient: Client {
       .all()
     guard !models.isEmpty else { return models }
     let prepared = SQL.delete(from: M.self, where: constraint)
-    try await SQL.execute(prepared, on: db)
+    try await SQL.execute(prepared, on: sql)
     return models
   }
 
@@ -78,7 +78,7 @@ public struct LiveClient: Client {
         offset: offset
       )
     }
-    try await SQL.execute(prepared, on: db)
+    try await SQL.execute(prepared, on: sql)
     return models
   }
 
@@ -98,7 +98,7 @@ public struct LiveClient: Client {
       limit: limit,
       offset: offset
     )
-    let rows = try await SQL.execute(prepared, on: db)
+    let rows = try await SQL.execute(prepared, on: sql)
     return try rows.compactMap { try $0.decode(Model.self) }
   }
 
@@ -107,7 +107,7 @@ public struct LiveClient: Client {
     withBindings bindings: [Postgres.Data]? = nil
   ) async throws -> [J] {
     let prepared = SQL.PreparedStatement(query: Joined.query, bindings: bindings ?? [])
-    let rows = try await SQL.execute(prepared, on: db)
+    let rows = try await SQL.execute(prepared, on: sql)
     return try Joined.decode(fromSqlRows: rows)
   }
 
@@ -118,7 +118,7 @@ public struct LiveClient: Client {
   ) async throws -> Int {
     let rows = try await SQL.execute(
       SQL.count(M.self, where: constraint + (withSoftDeleted ? .always : .notSoftDeleted)),
-      on: db
+      on: sql
     )
     guard let row = rows.first else {
       throw DuetSQLError.notFound
